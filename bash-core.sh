@@ -1,48 +1,15 @@
 #!/bin/bash
 
-#IN NON SUDO MODE
-#"gedit ~/.bash_aliases" (add the reference this current bash script file and personal bash files)
-#sample example of import at bash aliases file:
-#if [ -f /home/user/bash-dump/bash-aliases.sh ]; then
-#    . /home/user/bash-dump/bash-aliases.sh
-#fi;
-#system_init_non_sudo_first
-#admin
-
-#SWITCH TO SUDO MODE
-#"gedit ~/.bash_aliases" (add the reference this current bash script file and personal bash files)
-#system_init_sudo
-#"gedit ~/.zshrc" (change the zsh theme to "agnoster" and add the reference this current bash script file and personal bash files)
-#sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS postgis_topology; ALTER USER postgres PASSWORD '$SYSTEM_USER_NAME'; CREATE ROLE $SYSTEM_USER_NAME LOGIN PASSWORD '$SYSTEM_USER_NAME';CREATE USER $SYSTEM_USER_NAME WITH PASSWORD '$SYSTEM_USER_NAME';ALTER ROLE $SYSTEM_USER_NAME SET client_encoding TO 'utf8'; ALTER ROLE $SYSTEM_USER_NAME SET default_transaction_isolation TO 'read committed' ;ALTER ROLE $SYSTEM_USER_NAME SET timezone TO 'UTC';alter role $SYSTEM_USER_NAME superuser;'
-#ssh_keygen
-#get_ssh (add the ssh public key at Github and Bitbucket)
-#ssh_sudo_setup
-
-#SWITCH BACK TO NON SUDO MODE, THAT IS YOUR PERSONAL SYSTEM USER
-#system_init_non_sudo_second
-#"gedit ~/.zshrc" (change the zsh theme to "agnoster" and add the reference this current bash script file and personal bash files)
-#ssh_keygen
-#get_ssh (add the ssh public key at Github and Bitbucket)
-#ssh_non_sudo_setup
-#admin
-
-#SWITCH BACK TO SUDO MODE
-#Download smartgit, vscode, pycharm and bracket deb files and put them in the softwares folder. Change the 3 lines below with the latest version the respective softwares. Then run 'install_smartgit', 'install_vscode', 'install_pycharm', 'install_bracket'.
-#1. http://www.syntevo.com/smartgit/download
-#2. https://code.visualstudio.com/download
-#3. https://www.jetbrains.com/pycharm/download/
-#4. https://github.com/adobe/brackets/releases/
-
-LATEST_PYCHARM_VERSION="pycharm-community-2017.1.1"
-LATEST_SMARTGIT_FILE_NAME="smartgit-17_0_3.deb"
-LATEST_VSCODE_FILE_NAME="code-insiders_1.12.0-1492586320_amd64.deb"
+LATEST_PYCHARM_VERSION="pycharm-community-2017.2"
+LATEST_SMARTGIT_FILE_NAME="smartgit-17_0_4.deb"
+LATEST_VSCODE_FILE_NAME="code_1.14.2-1500506907_amd64.deb"
 LATEST_ROBOMONGO_VERSION="1.0.0"
 LATEST_ROBOMONGO_VERSION_FULL="robomongo-$LATEST_ROBOMONGO_VERSION-linux-x86_64-89f24ea"
 
 LATEST_GEOS_VERSION="geos-3.6.1"
 LATEST_POSTGIS_VERSION="postgis-2.3.3dev"
 LATEST_PYTHON_VERSION="3.5.2"
-LATEST_BRACKET_VERSION="1.9"
+LATEST_BRACKET_VERSION="1.10"
 LATEST_STACER_VERSION="1.0.6"
 
 SYSTEM_ROOT_VIRTUAL_PYTHON_ENVIRONMENT_FOLDER_NAME="virtual-python-envs"
@@ -254,6 +221,8 @@ nodeUpdates() {
     return
   fi;
   aptGet
+  goToRoot
+  npm i -g npm
   npm install -g @angular/cli
   npm install -g mongodb@latest
   npm install -g socket.io@latest
@@ -277,6 +246,7 @@ nodeUpdates() {
   npm install -g redux-devtools@latest
   npm install -g grunt-cli@latest
   webdriver-manager update
+  goToRoot
 }
 
 apmUpdates() {
@@ -307,7 +277,7 @@ postgresPgpassFileInit() {
     return
   fi;
   if [ ! -f ~/.pgpass ]; then
-    touch $USER:$USER ~/.pgpass;
+    touch $USER:$USER ~/.pgpass
   fi;
   chown $USER:$USER ~/.pgpass
   chmod $DEFAULT_PERMISSION_VALUE ~/.pgpass
@@ -401,6 +371,7 @@ installPythonAndPostgres() {
   aptGet
   printf 'y\n' | sudo apt-get install python-software-properties python-pip python-dev python3-dev libpq-dev postgresql postgresql-contrib pgadmin3 libxml2-dev libxslt1-dev libjpeg-dev python-gpgme
   printf 'y\n' | sudo apt-get install python-lxml python-cffi libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 shared-mime-info libxslt-dev libffi-dev libcairo2-dev libpango1.0-dev libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
+  printf 'y\n' | sudo apt-get install python-pyaudio python-numpy
   printf 'y\n' | sudo apt-get install postgresql-server-dev-9.5
   #geo-spatial packages
   printf 'y\n' | sudo apt-get install binutils libproj-dev gdal-bin libgdal-dev postgis
@@ -426,6 +397,7 @@ installPythonAndPostgres() {
   goToRoot
   pip install --upgrade WeasyPrint
   pip install --upgrade pip
+  pip install --upgrade apiai
   pip install --upgrade django
   pip install --upgrade virtualenv
   pip install --upgrade jsbeautifier
@@ -436,6 +408,7 @@ installPythonAndPostgres() {
   pip install --upgrade html5lib
   pip install --upgrade docker-compose
   pip install --upgrade awscli
+  pip install --upgrade pyOpenSSL==16.2.0
   sudo service postgresql restart
   #the following command is for postgis installation in postgres in 9.3
   #sudo apt-get install postgresql-9.3-postgis-scripts postgresql-9.3-postgis-2.1-scripts
@@ -505,10 +478,13 @@ installBracket() {
   goToRoot
   aptGet
   checkSoftwareFolder
-  wget https://github.com/adobe/brackets/releases/download/release-$1/Brackets.Release.$1.64-bit.deb
-  printf 'y\n' | sudo apt install Brackets.Release.$1.64-bit.deb
-  sudo dpkg -i Brackets.Release.$1.64-bit
-  printf 'y\n' | sudo apt-get install -f
+  printf '\n' | sudo add-apt-repository ppa:webupd8team/brackets
+  aptGet
+  printf 'y\n' | sudo apt-get install brackets
+  #wget https://github.com/adobe/brackets/releases/download/release-$1/Brackets.Release.$1.64-bit.deb
+  #printf 'y\n' | sudo apt install $SYSTEM_SOFTWARE_FOLDER/Brackets.Release.$1.64-bit.deb
+  #sudo dpkg -i $SYSTEM_SOFTWARE_FOLDER/Brackets.Release.$1.64-bit
+  #printf 'y\n' | sudo apt-get install -f
   goToRoot
 }
 
@@ -574,11 +550,13 @@ installVSCodeExtensionsNonSudo() {
 
 installDotNetCore() {
   goToRoot
+  #Reference: https://www.microsoft.com/net/core#linuxubuntu
   # Dependent on ubuntu version
-  sudo sh -c 'echo "deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ "$(lsb_release -sc)" main" > /etc/apt/sources.list.d/dotnetdev.list'
-  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893
+  curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+  sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+  sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod \"$(lsb_release -sc)\" main" > /etc/apt/sources.list.d/dotnetdev.list'
   aptGet
-  printf 'y\n' | sudo apt-get install dotnet-dev-1.0.1
+  printf 'y\n' | sudo apt-get install dotnet-sdk-2.0.0
   goToRoot
 }
 
@@ -619,11 +597,6 @@ powerlineFontInstallationNonSudo() {
 }
 
 installZshSudo() {
-  funcName=$(getFunctionName)
-  checkIfSudo $funcName
-  if [ "${?}" = "0" ] ; then
-    return
-  fi;
   goToRoot
   aptGet
   rm -rf /root/.oh-my-zsh
@@ -701,11 +674,6 @@ installRoboMongo() {
 }
 
 installPyCharm() {
-  funcName=$(getFunctionName)
-  checkIfNotSudo $funcName
-  if [ "${?}" = "0" ] ; then
-    return
-  fi;
   if [ -z "$1" ]; then
     echo "null value not allowed as first parameter for method: \"${funcName}\"! You must pass the required parameter(s)."
     return $1
@@ -719,13 +687,7 @@ installPyCharm() {
 }
 
 installZshNonSudo() {
-  funcName=$(getFunctionName)
-  checkIfSudo $funcName
-  if [ "${?}" = "0" ] ; then
-    return
-  fi;
   goToRoot
-  aptGet
   rm -rf $SYSTEM_ROOT_FOLDER/.oh-my-zsh
   pip install --user powerline-status
   goToRoot
@@ -738,24 +700,8 @@ installZshNonSudo() {
   source ~/.bashrc
 }
 
-installAtom() {
-  funcName=$(getFunctionName)
-  checkIfSudo $funcName
-  if [ "${?}" = "0" ] ; then
-    return
-  fi;
+installAtomExtensionsNonSudo() {
   goToRoot
-  aptGet
-  printf '\n' | sudo add-apt-repository ppa:webupd8team/atom
-  aptGet
-  printf 'y\n' | sudo apt-get install atom
-  #ALTERNATE METHOD BELOW(commented out)
-  #checkSoftwareFolder
-  #wget --no-check-certificate https://atom.io/download/deb
-  #mv "deb" "atom-amd64.deb"
-  #sudo dpkg -i atom-amd64.deb
-  #sudo apt-get install -f
-  #rm -rf atom-amd64.deb
   apm install nuclide
   apm install atom-beautify
   apm install autocomplete-python
@@ -776,6 +722,32 @@ installAtom() {
   apm install highlight-selected
   #apm install react
   apm install autoclose-html
+  apm install linter-ui-default
+  apm install busy-signal
+  apm install intentions
+  apm install linter-jshint
+  goToRoot
+}
+
+installAtom() {
+  funcName=$(getFunctionName)
+  checkIfSudo $funcName
+  if [ "${?}" = "0" ] ; then
+    return
+  fi;
+  goToRoot
+  aptGet
+  printf '\n' | sudo add-apt-repository ppa:webupd8team/atom
+  aptGet
+  printf 'y\n' | sudo apt-get install atom
+  #ALTERNATE METHOD BELOW(commented out)
+  #checkSoftwareFolder
+  #wget --no-check-certificate https://atom.io/download/deb
+  #mv "deb" "atom-amd64.deb"
+  #sudo dpkg -i atom-amd64.deb
+  #sudo apt-get install -f
+  #rm -rf atom-amd64.deb
+  installAtomExtensionsNonSudo
   goToRoot
 }
 
@@ -926,9 +898,10 @@ installWine() {
   printf "y\n" | sudo apt autoremove
   aptGet
   printf '\n' | sudo add-apt-repository --remove ppa:wine/wine-builds
+  sudo dpkg --add-architecture i386
   wget https://dl.winehq.org/wine-builds/Release.key
   sudo apt-key add Release.key
-  sudo apt-add-repository 'https://dl.winehq.org/wine-builds/ubuntu/'
+  printf '\n' | sudo apt-add-repository 'https://dl.winehq.org/wine-builds/ubuntu/'
   aptGet
   printf 'y\n' | sudo apt-get install --install-recommends wine-staging
   /opt/wine-staging/bin/wine
@@ -1009,10 +982,11 @@ installVirtualBox() {
 }
 
 installJava() {
-  # Install Java 9
-  printf '\n' | sudo add-apt-repository ppa:webupd8team/java
+  # Install Java 8
+  sudo add-apt-repository -y ppa:webupd8team/java
   aptGet
-  sudo apt-get install oracle-java9-installer
+  echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+  sudo apt-get install -y oracle-java8-installer
 }
 
 installPackagesForSystemSudo() {
@@ -1024,28 +998,30 @@ installPackagesForSystemSudo() {
   goToRoot
   coreSystemUpdate
   # Install build essentials
-  printf 'y\n' | sudo apt-get install build-essential autoconf automake unzip curl gcc g++ wget sshpass tree git zip upstart preload nano vim lsof checkinstall software-properties-common libav-tools
+  printf 'y\n' | sudo apt-get install build-essential autoconf automake unzip curl gcc g++ wget sshpass pwgen tree git zip upstart preload nano vim lsof checkinstall software-properties-common libav-tools debconf-utils
   printf 'y\n' | sudo apt-get install ubuntu-desktop unity compizconfig-settings-manager ffmpeg
+  # Install package for ubuntu app location restore feature after machine restart
+  printf 'y\n' | sudo apt-get install wmctrl
   # Install ubuntu make
   printf '\n' | sudo add-apt-repository ppa:ubuntu-desktop/ubuntu-make
   aptGet
   # Install open vpn
-  printf '\n' | sudo apt-get install openvpn easy-rsa
+  printf 'y\n' | sudo apt-get install openvpn easy-rsa
   aptGet
   printf 'y\n' | sudo apt-get install ubuntu-make
   # Install Git
   printf 'y\n' | sudo apt-get install git git-core xclip
-  git config --global user.name $SYSTEM_USER_FULL_NAME
-  GIT_COMMITTER_NAME=$SYSTEM_USER_FULL_NAME
-  GIT_AUTHOR_NAME=$SYSTEM_USER_FULL_NAME
-  git config --global user.email $SYSTEM_USER_EMAIL
-  GIT_COMMITTER_EMAIL=$SYSTEM_USER_EMAIL
-  GIT_AUTHOR_EMAIL=$SYSTEM_USER_EMAIL
+  git config --global user.name "$SYSTEM_USER_FULL_NAME"
+  GIT_COMMITTER_NAME="$SYSTEM_USER_FULL_NAME"
+  GIT_AUTHOR_NAME="$SYSTEM_USER_FULL_NAME"
+  git config --global user.email "$SYSTEM_USER_EMAIL"
+  GIT_COMMITTER_EMAIL="$SYSTEM_USER_EMAIL"
+  GIT_AUTHOR_EMAIL="$SYSTEM_USER_EMAIL"
   # Install NodeJS and NPM along with required global node modules
   aptGet
   curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
   sudo apt-get install -y nodejs
-  nodeUpdates
+  #nodeUpdates
   # Install python and postgres
   installPythonAndPostgres
   # Install C++ code beautifier
@@ -1080,8 +1056,6 @@ installPackagesForSystemSudo() {
   printf "\n" | sudo add-apt-repository ppa:dawidd0811/neofetch
   aptGet
   printf "y\n" | sudo apt install neofetch
-  # Install Steam
-  # printf 'y\n' | sudo apt-get install steam
   #Install Adobe Flash Player
   printf 'y\n' | sudo apt-get install flashplugin-installer
   # Install Filezilla FTP
@@ -1116,6 +1090,10 @@ installPackagesForSystemSudo() {
   printf '\n' | sudo add-apt-repository ppa:qos/pulseaudio-dlna
   aptGet
   printf 'y\n' | sudo apt-get install pulseaudio-dlna
+  # Install noobs-lacb icons
+  printf '\n' | sudo add-apt-repository ppa:noobslab/icons
+  aptGet
+  printf 'y\n' | sudo apt-get install ultra-flat-icons ultra-flat-icons-green ultra-flat-icons-orange
   # Stacer installation
   installStacer $LATEST_STACER_VERSION
   # Docker installation
@@ -1149,6 +1127,11 @@ installPackagesForSystemSudo() {
   installZshSudo
   # Install blender
   installBlender
+  # Install Ansible
+  aptGet
+  printf "\n" | sudo apt-add-repository ppa:ansible/ansible
+  aptGet
+  printf "y\n" | sudo apt-get install ansible
   # Install ngnix
   sudo service apache2 stop
   printf "y\n" | sudo apt-get install nginx
@@ -1156,6 +1139,8 @@ installPackagesForSystemSudo() {
   sudo ufw allow 'Nginx HTTP'
   sudo ufw allow 'Nginx HTTPS'
   sudo service apache2 start
+  # Install Bracket editor
+  install_bracket
   coreSystemUpdate
 }
 
@@ -1188,6 +1173,7 @@ installPackagesForSystemNonSudoThird() {
   installZshNonSudo
   powerlineFontInstallationNonSudo
   installVSCodeExtensionsNonSudo
+  installAtomExtensionsNonSudo
   postgresPgpassFileInit
 }
 
@@ -1285,6 +1271,7 @@ alias git_a='git add '
 alias git_b='git_f && git rev-parse --abbrev-ref HEAD'
 alias git_c=gitCheckout
 alias git_cc='git commit -m "Rebased and resolved conflicts after rebasing from base branch."'
+alias git_co='git commit -m '
 alias git_f='printf "yes\n" | git fetch --all'
 alias git_l='git_f && git log'
 alias git_p='git push origin HEAD -f'
@@ -1322,6 +1309,7 @@ alias jenkins_install=installJenkins
 alias jenkins_start='/etc/init.d/jenkins start'
 alias jenkins_stop='/etc/init.d/jenkins stop'
 alias karma_test='karma start --browsers Chrome'
+alias last_shutdown='last -x | grep shutdown'
 alias loc_count='cloc '
 alias new_django_project='newDjangoProject '
 alias no_sudo_zsh='export SHELL=/usr/bin/zsh && exec /usr/bin/zsh -l'
